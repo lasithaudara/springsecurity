@@ -23,7 +23,6 @@ public class ApplicationSecurityConfig {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    //2.17.12
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
             http
@@ -31,14 +30,10 @@ public class ApplicationSecurityConfig {
                     .authorizeHttpRequests()
                     .requestMatchers("/", "index", "/css/*").permitAll()
                     .requestMatchers(" /api/**").hasRole(STUDENT.name())
-                    .requestMatchers(HttpMethod.DELETE,
-                            "management/api/..").hasAuthority(COURSE_WRITE.getPermission())
-                    .requestMatchers(HttpMethod.POST,
-                            "/management/api/..").hasAuthority(COURSE_WRITE.getPermission())
-                    .requestMatchers(HttpMethod.PUT,
-                            " management/api/..").hasAuthority(COURSE_WRITE.getPermission())
-                    .requestMatchers(HttpMethod.GET,
-                            " /management/api/**").hasAnyRole(ADMIN.name(), ADMINTRAINEE.name())
+                    .requestMatchers(HttpMethod.DELETE,"management/api/**").hasAuthority(COURSE_WRITE.getPermission())
+                    .requestMatchers(HttpMethod.POST,"/management/api/**").hasAuthority(COURSE_WRITE.getPermission())
+                    .requestMatchers(HttpMethod.PUT," management/api/**").hasAuthority(COURSE_WRITE.getPermission())
+                    .requestMatchers(HttpMethod.GET," /management/api/**").hasAnyRole(ADMIN.name(), ADMINTRAINEE.name())
                     .anyRequest().authenticated()
                     .and()
                     .httpBasic();
@@ -50,17 +45,21 @@ public class ApplicationSecurityConfig {
             UserDetails userLasi = User.builder()
                     .username("lasitha")
                     .password(passwordEncoder.encode("test123"))
-                    .roles("STUDENT")
+                    .authorities(STUDENT.getGrantedAuthorities())
                     .build();
 
             UserDetails userKasun = User.builder()
                     .username("kasun")
                     .password(passwordEncoder.encode("test123"))
-                    .roles("ADMIN")
+                    .authorities(ADMIN.getGrantedAuthorities())
                     .build();
 
+            UserDetails userLinda = User.builder()
+                    .username("linda")
+                    .password(passwordEncoder.encode("test123"))
+                    .authorities(ADMINTRAINEE.getGrantedAuthorities())
+                    .build();
 
-            return new InMemoryUserDetailsManager(userLasi, userKasun);
+            return new InMemoryUserDetailsManager(userLasi, userKasun, userLinda);
         }
-
     }

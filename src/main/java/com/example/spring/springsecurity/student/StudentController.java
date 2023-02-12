@@ -21,6 +21,6 @@ public class StudentController {
     public Student getStudent(@PathVariable("studentId ") Integer studentId){
         return studentList.parallelStream()
                 .filter(student -> student.studentId().equals(studentId))
-                .findFirst().orElseThrow(()-> new IllegalStateException("can not find matching user"));
+                .findFirst().orElseThrow(IllegalStateException::new);
     }
 }

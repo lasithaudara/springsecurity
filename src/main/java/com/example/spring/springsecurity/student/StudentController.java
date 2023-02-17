@@ -18,7 +18,7 @@ public class StudentController {
     );
 
     @GetMapping("{studentId}")
-    public Student getStudent(@PathVariable("studentId ") Integer studentId){
+    public Student getStudent(@PathVariable("studentId") Integer studentId){
         return studentList.parallelStream()
                 .filter(student -> student.studentId().equals(studentId))
                 .findFirst().orElseThrow(IllegalStateException::new);

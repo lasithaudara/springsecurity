@@ -39,7 +39,8 @@ public class ApplicationSecurityConfig {
 //                    .requestMatchers(HttpMethod.GET," /management/api/**").hasAnyRole(ADMIN.name(), ADMINTRAINEE.name())
                     .anyRequest().authenticated()
                     .and()
-                    .httpBasic();
+                    .formLogin().loginPage("/login").permitAll()
+                    .defaultSuccessUrl("/management/api/v1/students");
             return http.build();
         }
 

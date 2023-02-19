@@ -1,25 +1,23 @@
 package com.example.spring.springsecurity.security;
 
+import com.example.spring.springsecurity.auth.ApplicationUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.example.spring.springsecurity.security.ApplicationUserPermission.*;
-import static com.example.spring.springsecurity.security.ApplicationUserRoles.*;
+import static com.example.spring.springsecurity.security.ApplicationUserRoles.STUDENT;
 
 @Configuration
 @EnableWebSecurity
@@ -28,6 +26,9 @@ public class ApplicationSecurityConfig {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private ApplicationUserDetailsService applicationUserDetailsService;
 
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -55,31 +56,18 @@ public class ApplicationSecurityConfig {
                         .clearAuthentication(true)
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID", "remember-me")
-                        .logoutSuccessUrl("/login");
+                        .logoutSuccessUrl("/login")
+                    .and()
+                    .authenticationProvider(daoAuthenticationProvider());
 
             return http.build();
         }
 
         @Bean
-        protected UserDetailsService userDetailsService () {
-            UserDetails userLasi = User.builder()
-                    .username("lasitha")
-                    .password(passwordEncoder.encode("test123"))
-                    .authorities(STUDENT.getGrantedAuthorities())
-                    .build();
-
-            UserDetails userKasun = User.builder()
-                    .username("kasun")
-                    .password(passwordEncoder.encode("test123"))
-                    .authorities(ADMIN.getGrantedAuthorities())
-                    .build();
-
-            UserDetails userLinda = User.builder()
-                    .username("linda")
-                    .password(passwordEncoder.encode("test123"))
-                    .authorities(ADMINTRAINEE.getGrantedAuthorities())
-                    .build();
-
-            return new InMemoryUserDetailsManager(userLasi, userKasun, userLinda);
+        public DaoAuthenticationProvider daoAuthenticationProvider(){
+            DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+            daoAuthenticationProvider.setPasswordEncoder(passwordEncoder);
+            daoAuthenticationProvider.setUserDetailsService(applicationUserDetailsService);
+            return daoAuthenticationProvider;
         }
     }

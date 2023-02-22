@@ -1,6 +1,7 @@
 package com.example.spring.springsecurity.security;
 
 import com.example.spring.springsecurity.auth.ApplicationUserDetailsService;
+import com.example.spring.springsecurity.jwt.JwtTokenVerifier;
 import com.example.spring.springsecurity.jwt.JwtUsernamePasswordAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -36,15 +37,18 @@ public class ApplicationSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
+//                .authenticationProvider(daoAuthenticationProvider())
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .addFilter(new JwtUsernamePasswordAuthenticationFilter(
                         authenticationManager(
                                 http.getSharedObject(AuthenticationConfiguration.class))))
+                .addFilterAfter(new JwtTokenVerifier(), JwtUsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests()
                 .requestMatchers("/", "index", "/css/*").permitAll()
                 .requestMatchers(" /api/**").hasRole(STUDENT.name())
                 .anyRequest().authenticated();
+
 
 
         return http.build();

@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Date;
@@ -20,9 +21,15 @@ import java.util.Date;
 public class JwtUsernamePasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final  AuthenticationManager authenticationManager;
+    private final JwtConfig jwtConfig;
+    private final SecretKey secretKey;
 
-    public JwtUsernamePasswordAuthenticationFilter(AuthenticationManager authenticationManager) {
+    public JwtUsernamePasswordAuthenticationFilter(AuthenticationManager authenticationManager,
+                                                   JwtConfig jwtConfig,
+                                                   SecretKey secretKey) {
         this.authenticationManager = authenticationManager;
+        this.jwtConfig = jwtConfig;
+        this.secretKey = secretKey;
     }
 
     @Override
@@ -51,15 +58,14 @@ public class JwtUsernamePasswordAuthenticationFilter extends UsernamePasswordAut
                                             Authentication authResult) throws IOException, ServletException {
         // this method is to send a token to client if the request authentication successful
 
-        String key = "dasksdalsazxlckv2320384uskaddnz123udsan";
         String token = Jwts.builder()
                 .setSubject(authResult.getName())                                               // PAYLOAD {
                 .claim("authorities", authResult.getAuthorities())                           //   ..
                 .setIssuedAt(new Date())                                                       //    ..
-                .setExpiration(java.sql.Date.valueOf(LocalDate.now().plusWeeks(2))) //  {
-                .signWith(Keys.hmacShaKeyFor(key.getBytes()))                                 //   VERIFY SIGNATURE {..}
+                .setExpiration(java.sql.Date.valueOf(LocalDate.now().plusWeeks(jwtConfig.tokenExpDays()))) //  {
+                .signWith(secretKey)                                 //   VERIFY SIGNATURE {..}
                 .compact();
 
-       response.addHeader("Authorization", "Bearer"+token);
+       response.addHeader(jwtConfig.getAuthorizationHeader(), jwtConfig.tokenPrefix()+token);
     }
 }

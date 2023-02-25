@@ -32,7 +32,6 @@ public class ApplicationSecurityConfig {
     private JwtConfig jwtConfig;
     @Autowired
     private SecretKey secretKey;
-
     @Autowired
     private ApplicationUserDetailsService applicationUserDetailsService;
 

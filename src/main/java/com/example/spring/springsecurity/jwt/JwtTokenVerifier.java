@@ -35,11 +35,11 @@ public class JwtTokenVerifier extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         String authorizationHeader = request.getHeader(jwtConfig.getAuthorizationHeader());
-        if (Strings.isNullOrEmpty(authorizationHeader) || !authorizationHeader.startsWith(jwtConfig.tokenPrefix())) {
+        if (Strings.isNullOrEmpty(authorizationHeader) || !authorizationHeader.startsWith(jwtConfig.getTokenPrefix())) {
             filterChain.doFilter(request, response);
             return; }
 
-        String token = authorizationHeader.replace(jwtConfig.tokenPrefix(), "");
+        String token = authorizationHeader.replace(jwtConfig.getTokenPrefix(), "");
 
         try {
             Jws<Claims> claimsJws = Jwts.parserBuilder()

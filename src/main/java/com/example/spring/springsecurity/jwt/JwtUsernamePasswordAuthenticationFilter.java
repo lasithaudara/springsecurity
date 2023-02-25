@@ -62,10 +62,10 @@ public class JwtUsernamePasswordAuthenticationFilter extends UsernamePasswordAut
                 .setSubject(authResult.getName())                                               // PAYLOAD {
                 .claim("authorities", authResult.getAuthorities())                           //   ..
                 .setIssuedAt(new Date())                                                       //    ..
-                .setExpiration(java.sql.Date.valueOf(LocalDate.now().plusWeeks(jwtConfig.tokenExpDays()))) //  {
+                .setExpiration(java.sql.Date.valueOf(LocalDate.now().plusWeeks(jwtConfig.getTokenExpDays()))) //  {
                 .signWith(secretKey)                                 //   VERIFY SIGNATURE {..}
                 .compact();
 
-       response.addHeader(jwtConfig.getAuthorizationHeader(), jwtConfig.tokenPrefix()+token);
+       response.addHeader(jwtConfig.getAuthorizationHeader(), jwtConfig.getTokenPrefix()+token);
     }
 }
